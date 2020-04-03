@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body onload="load();">
+    <div class="container">
+      <div class="row">
+        <button class="offset-10" type="button" id="about">A propos</button>
+      </div>
+      <div class="row">
+        <form class="form-row col-12 align-items-center">
+          <div class="col-12 my-1">
+            <label for="select col-1"> Choisir une cat : </label>
+            <select class="custom-select col-2 " id="select">
+              <option value="1">jupes</option>
+              <option value="2">chemises</option>
+              <option value="3">pulls</option>
+              <option value="4">chapeaux</option>
+              <option value="5">vestes</option>
+            </select>
+            <button class="btn btn-primary" type="button" id="infos">
+              Infos
+            </button>
+          </div>
+        </form>
+      </div>
+      <hr />
+      <div class="row">
+        <h1 id="title">Bonjour</h1>
+      </div>
+      <div class="row">
+        <div class="col-6" id="main">
+          <h2>Produit</h2>
+          <h3>Sous titre</h3>
+          <p>descprition</p>
+        </div>
+        <div class="col-6" id="table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Label</th>
+                <th scope="col">Info</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Quantity</td>
+                <td id="quantity"></td>
+              </tr>
+              <tr>
+                <td>prix</td>
+                <td id="prix"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      var xhr = new XMLHttpRequest();
+      let infos = document.getElementById("infos");
+      let select = document.getElementById("select");
+      let about = document.getElementById("about");
+
+
+      about.addEventListener("click", () => {
+        xhr.onreadystatechange = function() {
+          if (this.readyState != 4 || this.status != 200) {
+            console.log(
+              "erreur serveur ou pas de reponse encore ( Etat : " +
+                this.readyState +
+                " / Status : " +
+                this.status +
+                ")"
+            );
+          }
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("main").innerHTML = this.responseText;
+            document.getElementById("title").innerHTML = "à propos";
+            document.getElementById("table").style.visibility = "hidden";
+            console.log(this.responseText);
+          }
+        };
+        xhr.open("GET", "ajax/about.html", true);
+        xhr.send();
+      });
+
+      
+      infos.addEventListener("click", () => {
+        let url = "ajax/prod" + select.value + ".html";
+
+        xhr.onreadystatechange = function() {
+          let titre_prod;
+          let nom;
+          let desc_prod;
+          let quantity;
+          let price;
+
+          if (this.readyState != 4 || this.status != 200) {
+            console.log(
+              "erreur serveur ou pas de reponse encore ( Etat : " +
+                this.readyState +
+                " / Status : " +
+                this.status +
+                ")"
+            );
+          }
+          if (this.readyState == 4 && this.status == 200) {
+            let infos = this.responseText.split("|");
+            infos.forEach(el => {
+              el = el.split(":=");
+              el[0] = el[0].trim();
+              el[1] = el[1].trim();
+
+              if (el[0] == "descTitre") titre_prod = el[1];
+              if (el[0] == "descText") desc_prod = el[1];
+              if (el[0] == "nom") nom = el[1];
+              if (el[0] == "quantitestock") quantity = el[1];
+              if (el[0] == "prix") price = el[1];
+            });
+
+            document.getElementById("table").style.visibility = "visible";
+            document.getElementById("title").innerHTML = titre_prod;
+            document.getElementById("main").innerHTML = "";
+            setInfos(nom, desc_prod);
+            setTable(price, quantity);
+          }
+        };
+        xhr.open("GET", url, true);
+        xhr.send();
+      });
+
+      function setInfos(titre, text) {
+        let title_prod = document.createElement("h2");
+        let descp_prod = document.createElement("p");
+        title_prod.innerText = titre;
+        descp_prod.innerText = text;
+        document.getElementById("main").appendChild(title_prod);
+        document.getElementById("main").appendChild(descp_prod);
+      }
+      function setTable(price, quantity) {
+        document.getElementById("prix").innerHTML = price;
+        document.getElementById("quantity").innerHTML = quantity;
+      }
+
+      function load() {
+        xhr.onreadystatechange = function() {
+          if (this.readyState != 4 || this.status != 200) {
+            console.log(
+              "erreur serveur ou pas de reponse encore ( Etat : " +
+                this.readyState +
+                " / Status : " +
+                this.status +
+                ")"
+            );
+          }
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("main").innerHTML = this.responseText;
+            document.getElementById("title").innerHTML = "à propos";
+            document.getElementById("table").style.visibility = "hidden";
+            console.log(this.responseText);
+          }
+        };
+        xhr.open("GET", "ajax/about.html", true);
+        xhr.send();
+      }
+    </script>
+  </body>
+</html>
