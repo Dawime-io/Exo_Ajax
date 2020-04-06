@@ -17,7 +17,7 @@
       crossorigin="anonymous"
     />
   </head>
-  <body onload="load();">
+  <body onload="loadabout();">
     <div class="container">
       <div class="row">
         <button class="offset-10" type="button" id="about">A propos</button>
@@ -44,9 +44,7 @@
         <h1 id="title"></h1>
       </div>
       <div class="row">
-        <div class="col-6" id="main">
-          
-        </div>
+        <div class="col-6" id="main"></div>
         <div class="col-6" id="table">
           <table class="table">
             <thead>
@@ -94,30 +92,8 @@
       let select = document.getElementById("select");
       let about = document.getElementById("about");
 
+      about.addEventListener("click", load);
 
-      about.addEventListener("click", () => {
-        xhr.onreadystatechange = function() {
-          if (this.readyState != 4 || this.status != 200) {
-            console.log(
-              "erreur serveur ou pas de reponse encore ( Etat : " +
-                this.readyState +
-                " / Status : " +
-                this.status +
-                ")"
-            );
-          }
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("main").innerHTML = this.responseText;
-            document.getElementById("title").innerHTML = "à propos";
-            document.getElementById("table").style.visibility = "hidden";
-            console.log(this.responseText);
-          }
-        };
-        xhr.open("GET", "ajax/about.html", true);
-        xhr.send();
-      });
-
-      
       infos.addEventListener("click", () => {
         let url = "ajax/prod" + select.value + ".html";
 
@@ -130,7 +106,7 @@
 
           if (this.readyState != 4 || this.status != 200) {
             console.log(
-              "erreur serveur ou pas de reponse encore ( Etat : " +
+              "( Etat : " +
                 this.readyState +
                 " / Status : " +
                 this.status +
@@ -144,11 +120,23 @@
               el[0] = el[0].trim();
               el[1] = el[1].trim();
 
-              if (el[0] == "descTitre") titre_prod = el[1];
-              if (el[0] == "descText") desc_prod = el[1];
-              if (el[0] == "nom") nom = el[1];
-              if (el[0] == "quantitestock") quantity = el[1];
-              if (el[0] == "prix") price = el[1];
+              switch (el[0]) {
+                case "descTitre":
+                  titre_prod = el[1];
+                  break;
+                case "descText":
+                  desc_prod = el[1];
+                  break;
+                case "nom":
+                  nom = el[1];
+                  break;
+                case "quantitestock":
+                  quantity = el[1];
+                  break;
+                case "prix":
+                  price = el[1];
+                  break;
+              }
             });
 
             document.getElementById("table").style.visibility = "visible";
@@ -170,16 +158,17 @@
         document.getElementById("main").appendChild(title_prod);
         document.getElementById("main").appendChild(descp_prod);
       }
+
       function setTable(price, quantity) {
         document.getElementById("prix").innerHTML = price;
         document.getElementById("quantity").innerHTML = quantity;
       }
 
-      function load() {
+      function loadabout() {
         xhr.onreadystatechange = function() {
           if (this.readyState != 4 || this.status != 200) {
             console.log(
-              "erreur serveur ou pas de reponse encore ( Etat : " +
+              "Etat : " +
                 this.readyState +
                 " / Status : " +
                 this.status +
@@ -190,7 +179,6 @@
             document.getElementById("main").innerHTML = this.responseText;
             document.getElementById("title").innerHTML = "à propos";
             document.getElementById("table").style.visibility = "hidden";
-            console.log(this.responseText);
           }
         };
         xhr.open("GET", "ajax/about.html", true);
